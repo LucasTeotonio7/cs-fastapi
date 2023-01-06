@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from fastapi import HTTPException
 from fastapi import status
 
+from models import Course
+
 
 app = FastAPI()
 
@@ -34,7 +36,13 @@ async def get_course(id: int):
             status_code=status.HTTP_404_NOT_FOUND,
         )
 
-
+@app.post('/courses', status_code=status.HTTP_201_CREATED)
+async def create_course(course: Course):
+    if course.id not in courses:
+        next_id=len(courses) + 1
+        courses[next_id] = course
+        del course.id
+        return course
 
 if __name__ == '__main__':
     import uvicorn
@@ -42,7 +50,7 @@ if __name__ == '__main__':
     uvicorn.run(
         app='main:app', 
         host="0.0.0.0", 
-        port=8000,
+        port=8010,
         debug=True,
         reload=True
     )
