@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from fastapi import HTTPException
+from fastapi import HTTPException, Response
 from fastapi import status
 
 from models import Course
@@ -43,6 +43,18 @@ async def create_course(course: Course):
         courses[next_id] = course
         del course.id
         return course
+
+@app.put('/courses/{id}')
+async def update_course(id: int, course: Course):
+    if id in courses:
+        course = courses[id] = course
+        del course.id
+        return course
+    else:
+        raise HTTPException(
+            detail='Course not found',
+            status_code=status.HTTP_404_NOT_FOUND,
+        )
 
 if __name__ == '__main__':
     import uvicorn
