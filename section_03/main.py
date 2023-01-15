@@ -1,7 +1,8 @@
+from typing import Optional
 from fastapi import FastAPI
 from fastapi import HTTPException, Response
 from fastapi import status
-from fastapi import Path
+from fastapi import Path, Query
 
 from models import Course
 
@@ -68,6 +69,16 @@ async def delete_course(id: int):
             detail='Course not found',
             status_code=status.HTTP_404_NOT_FOUND,
         )
+
+
+@app.get('/calculator')
+async def calculate(
+    a: int = Query(default=0, gt=5), 
+    b: int = Query(default=0, gt=10),
+    c: Optional[int]=0):
+
+    result = a + b + c
+    return {"result": result}
 
 
 if __name__ == '__main__':
