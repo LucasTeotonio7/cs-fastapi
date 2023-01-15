@@ -48,8 +48,8 @@ async def get_course(
 async def create_course(course: Course, db: Any = Depends(fake_db)):
     if course.id not in courses:
         next_id=len(courses) + 1
-        courses[next_id] = course
-        del course.id
+        course.id = next_id
+        courses.append(course)
         return course
 
 @router.put('/{id}')
