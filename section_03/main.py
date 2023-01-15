@@ -1,10 +1,21 @@
-from typing import Optional
+from typing import Any, Optional
 from fastapi import FastAPI
 from fastapi import HTTPException, Response
 from fastapi import status
-from fastapi import Path, Query
+from fastapi import Path, Query, Header, Depends
+
+from time import sleep
 
 from models import Course
+
+
+def fake_db():
+    try:
+        print('opening database connection')
+        sleep(1)
+    finally:
+        print('closing database connection')
+        sleep(1)
 
 
 app = FastAPI()
@@ -24,11 +35,14 @@ courses = {
 
 
 @app.get('/courses')
-async def get_courses():
+async def get_courses(db: Any = Depends(fake_db)):
     return courses
 
 @app.get('/courses/{id}')
-async def get_course(id: int = Path(default=None, title='course id', description='only whole numbers.', gt=0, lt=3)):
+async def get_course(
+    id: int = Path(default=None, title='course id', description='only whole numbers.', gt=0, lt=3),
+    db: Any = Depends(fake_db)
+):
     try:
         course = courses[id]
         return course
@@ -39,7 +53,7 @@ async def get_course(id: int = Path(default=None, title='course id', description
         )
 
 @app.post('/courses', status_code=status.HTTP_201_CREATED)
-async def create_course(course: Course):
+async def create_course(course: Course, db: Any = Depends(fake_db)):
     if course.id not in courses:
         next_id=len(courses) + 1
         courses[next_id] = course
@@ -47,7 +61,7 @@ async def create_course(course: Course):
         return course
 
 @app.put('/courses/{id}')
-async def update_course(id: int, course: Course):
+async def update_course(id: int, course: Course, db: Any = Depends(fake_db)):
     if id in courses:
         course = courses[id] = course
         del course.id
@@ -60,7 +74,7 @@ async def update_course(id: int, course: Course):
 
 
 @app.delete('/courses/{id}')
-async def delete_course(id: int):
+async def delete_course(id: int, db: Any = Depends(fake_db)):
     if id in courses:
         del courses[id]
         return Response(status_code=status.HTTP_204_NO_CONTENT)
@@ -75,7 +89,10 @@ async def delete_course(id: int):
 async def calculate(
     a: int = Query(default=0, gt=5), 
     b: int = Query(default=0, gt=10),
+    x_geek: str = Header(default=None),
     c: Optional[int]=0):
+
+    print(f'X_GEEK {x_geek}')
 
     result = a + b + c
     return {"result": result}
