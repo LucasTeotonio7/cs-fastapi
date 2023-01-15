@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any, Dict, List, Optional
 from fastapi import FastAPI
 from fastapi import HTTPException, Response
 from fastapi import status
@@ -6,7 +6,10 @@ from fastapi import Path, Query, Header, Depends
 
 from time import sleep
 
-from models import Course
+from models import Course, courses
+
+from docs.course import *
+from docs.calculator import *
 
 
 def fake_db():
@@ -18,27 +21,18 @@ def fake_db():
         sleep(1)
 
 
-app = FastAPI()
-
-courses = {
-    1: {
-        'title': 'FastAPI - Modern and Asynchronous APIs with Python',
-        'lessons': 100,
-        'hours': 15
-    },
-    2: {
-        'title': 'Programming algorithms and logic',
-        'lessons': 95,
-        'hours': 12
-    },
-}
+app = FastAPI(
+    title='Geek university courses api',
+    version="0.0.1",
+    description="An API for studying fastAPI"
+)
 
 
-@app.get('/courses')
+@app.get('/courses', **get_course_doc)
 async def get_courses(db: Any = Depends(fake_db)):
     return courses
 
-@app.get('/courses/{id}')
+@app.get('/courses/{id}', **get_course_id_doc)
 async def get_course(
     id: int = Path(default=None, title='course id', description='only whole numbers.', gt=0, lt=3),
     db: Any = Depends(fake_db)
@@ -85,7 +79,7 @@ async def delete_course(id: int, db: Any = Depends(fake_db)):
         )
 
 
-@app.get('/calculator')
+@app.get('/calculator', **get_calculator_doc)
 async def calculate(
     a: int = Query(default=0, gt=5), 
     b: int = Query(default=0, gt=10),
