@@ -37,3 +37,70 @@ async def get_courses(
         courses: List[CourseModel] = result.scarlars().all()
 
         return courses
+
+
+@router.get('/{id}', status_code=status.HTTP_200_OK, response_model=CourseSchema)
+async def get_course(
+    id: int, 
+    db: AsyncSession = Depends(get_session)
+):
+    async with db as session:
+        query = select(CourseModel).filter(CourseModel.id == id)
+        result = await session.execute(query)
+        course: CourseModel = result.scalar_one_or_none()
+
+        if course:
+            return course
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, 
+                detail='Course not found'
+            )
+
+
+@router.put('/{id}', status_code=status.HTTP_202_ACCEPTED, response_model=CourseSchema)
+async def update_course(
+    id: int, 
+    course: CourseSchema, 
+    db: AsyncSession = Depends(get_session)
+):
+    async with db as session:
+        query = select(CourseModel).filter(CourseModel.id == id)
+        result = await session.execute(query)
+        course_db: CourseModel = result.scalar_one_or_none()
+
+        if course_db:
+            course_db.title = course.title
+            course_db.lessons = course.lessons
+            course_db.hours = course.hours
+
+            await session.commit()
+
+            return course_db
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, 
+                detail='Course not found'
+            )
+
+
+@router.delete('/{id}', status_code=status.HTTP_204_NO_CONTENT)
+async def delete_course(
+    id: int, 
+    db: AsyncSession = Depends(get_session)
+):
+    async with db as session:
+        query = select(CourseModel).filter(CourseModel.id == id)
+        result = await session.execute(query)
+        course_db: CourseModel = result.scalar_one_or_none()
+
+        if course_db:
+            await session.delete(course_db)
+            await session.commit()
+
+            return Response(status_code=status.HTTP_204_NO_CONTENT)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, 
+                detail='Course not found'
+            )
