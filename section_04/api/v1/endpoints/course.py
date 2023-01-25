@@ -27,14 +27,14 @@ async def create_course(
     return new_course
 
 
-@router.get('/', status_code=status.HTTP_200_OK, response_model=CourseSchema)
+@router.get('/', status_code=status.HTTP_200_OK, response_model=List[CourseSchema])
 async def get_courses(
     db: AsyncSession = Depends(get_session)
 ):
     async with db as session:
         query = select(CourseModel)
         result = await session.execute(query)
-        courses: List[CourseModel] = result.scarlars().all()
+        courses: List[CourseModel] = result.scalars().all()
 
         return courses
 
