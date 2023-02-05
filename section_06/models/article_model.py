@@ -9,6 +9,7 @@ class ArticleModel(settings.DBBaseModel):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     title = Column(String(256))
+    description = Column(String(256))
     font_url = Column(String(256)),
     user_id = Column(Integer, ForeignKey('user.id'))
     created_by = relationship('UserModel', back_populates='articles', lazy='joined')
