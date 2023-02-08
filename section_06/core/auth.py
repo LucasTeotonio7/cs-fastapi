@@ -14,7 +14,7 @@ from jose import jwt
 
 from models.user_model import UserModel
 from core.configs import settings
-from security import check_password
+from core.security import check_password
 
 from pydantic import EmailStr
 
