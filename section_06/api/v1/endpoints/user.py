@@ -6,6 +6,7 @@ from fastapi.responses import JSONResponse
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from sqlalchemy.exc import IntegrityError
 
 from models import UserModel
 from schemas.user_schema import UserSchemaBase, UserSchemaCreate, UserSchemaUpdate, UserSchemaArticles
@@ -35,10 +36,16 @@ async def create_user(
     )
 
     async with db as session:
-        session.add(new_user)
-        await session.commit()
+        try:
+            session.add(new_user)
+            await session.commit()
 
-        return new_user
+            return new_user
+        except IntegrityError:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail='e-mail already registered'
+            )
 
 @router.get('/', status_code=status.HTTP_200_OK, response_model=List[UserSchemaBase])
 async def get_users(db: AsyncSession = Depends(get_session)):
