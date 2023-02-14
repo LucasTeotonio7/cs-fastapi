@@ -2,7 +2,7 @@ from pytz import timezone
 
 
 from typing import Optional, List
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta
 
 from fastapi.security import OAuth2PasswordBearer
 
@@ -52,12 +52,12 @@ def create_token(
 ) -> str:
 
     payload = {}
-    timezone = 'America/Sao_Paulo'
-    expiry = datetime.now(tz=timezone) + expiry_time
+    tz = timezone('America/Sao_Paulo')
+    expiry = datetime.now(tz) + expiry_time
 
     payload["type"] = type
     payload["exp"] = expiry
-    payload["iat"] = datetime.now(tz=timezone)
+    payload["iat"] = datetime.now(tz)
     payload["sub"] = str(sub)
 
     return jwt.encode(
