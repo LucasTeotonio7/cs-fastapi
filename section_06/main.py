@@ -19,3 +19,14 @@ if __name__ == '__main__':
         log_level='info', 
         reload=True
     )
+
+
+# Debug
+@app.on_event("startup")
+async def startup_event():
+        import logging
+        import ptvsd
+
+        logging.basicConfig(level=logging.INFO, format='\n \033[92m %(message)s \033[0m \n')
+        logging.info('DEBUG SERVER STARTED AT PORT 3000')
+        ptvsd.enable_attach(address=('0.0.0.0', 3010))
