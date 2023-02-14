@@ -90,8 +90,12 @@ async def update_user(
             user_db.first_name = user.first_name or user_db.first_name
             user_db.last_name = user.last_name or user_db.last_name
             user_db.email = user.email or user_db.email
-            user_db.is_superuser = user.is_superuser or user_db.is_superuser
-            user_db.password = create_password_hash(user.password) or user_db.password
+
+            if user.is_superuser is not None:
+                user_db.is_superuser = user.is_superuser
+
+            if user.password:
+                user_db.password = create_password_hash(user.password)
 
             await session.commit()
 
@@ -127,7 +131,7 @@ async def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: AsyncSession = Depends(get_session)
 ):
-    user = authenticate(email=form_data.username, password=form_data.password, db=db)
+    user = await authenticate(email=form_data.username, password=form_data.password, db=db)
 
     if not user:
         return HTTPException(
