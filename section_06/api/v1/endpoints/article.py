@@ -78,7 +78,7 @@ async def update_article(
             article_db.description = article.description or article_db.description
             article_db.font_url = article.font_url or article_db.font_url
 
-            if user.id != article_db.user:
+            if user.id != article_db.user_id:
                 article_db.user = article.user_id
 
             await session.commit()
